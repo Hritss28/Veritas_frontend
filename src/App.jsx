@@ -1,28 +1,25 @@
-import { useState } from 'react'
-import cuyLogo from './assets/logo.svg'
-import './App.css'
+// src/App.jsx
+import { Routes, Route } from "react-router-dom";
+import MainLayout from "./components/layout/MainLayout";
+import LandingPage from "./pages/LandingPage";
+import PutusanListPage from "./pages/PutusanListPage";
+import PutusanDetailPage from "./pages/PutusanDetailPage";
 
 function App() {
-    const [count, setCount] = useState(0)
+  return (
+    <MainLayout>
+      <Routes>
+        {/* Landing / Home */}
+        <Route path="/" element={<LandingPage />} />
 
-    return (
-        <div className="App">
-        <div>
-            <a href="https://youtube.com/deaafrizal" target="_blank">
-            <img src={cuyLogo} className="logo cuy" alt="Cuy logo" />
-            </a>
-        </div>
-        <h1>🏆 REACTVITE PACK 🏆</h1>
-        <div className="card">
-            <button onClick={() => setCount((count) => count + 1)}>
-            realtime click {count}
-            </button>
-        </div>
-        <p className="read-the-docs">
-            how to run this pack: npm i & npm run dev on your terminal.
-        </p>
-        </div>
-    )
+        {/* Halaman daftar putusan / pencarian */}
+        <Route path="/putusan" element={<PutusanListPage />} />
+
+        {/* Detail putusan berdasarkan ID */}
+        <Route path="/putusan/:id" element={<PutusanDetailPage />} />
+      </Routes>
+    </MainLayout>
+  );
 }
 
-export default App
+export default App;
