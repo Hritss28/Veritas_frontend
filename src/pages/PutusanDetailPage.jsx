@@ -337,7 +337,7 @@ function PutusanDetailPage() {
 
           <Link
             to="/"
-            className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-200 cursor-pointer"
+            className="inline-flex items-center gap-1 rounded-sm border border-black px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-200 cursor-pointer"
           >
             Kembali ke daftar
           </Link>
@@ -475,7 +475,7 @@ function PutusanDetailPage() {
                 .
               </p>
               <div className="mt-2 flex flex-wrap gap-2 text-xs">
-                <button className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-3 py-2 font-semibold text-white shadow-sm hover:bg-sky-700">
+                <button className="cursor-pointer inline-flex items-center gap-2 rounded-lg bg-sky-600 px-3 py-2 font-semibold text-white shadow-sm hover:bg-sky-700">
                   Unduh PDF
                 </button>
                 <button
