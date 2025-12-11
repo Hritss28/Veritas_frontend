@@ -92,9 +92,17 @@ function PutusanDetailPage() {
           comments: Math.floor(Math.random() * 120),
           amar_putusan: p.amar_putusan || "Amar putusan tidak tersedia",
           catatan_amar: p.catatan_amar || p.amar_lainya || null,
-          // Download URL - jika ada url_dokumen, gunakan download endpoint dari ServerDaerah
-          url_dokumen: p.url_dokumen 
-            ? `${p.lembaga?.url_api}/putusan/${p.id_putusan_daerah || p.id}/download`
+          // URL dokumen - extract base URL (protocol + host + port) dari url_api
+          url_dokumen: p.url_dokumen && p.lembaga?.url_api
+            ? (() => {
+                try {
+                  const urlObj = new URL(p.lembaga.url_api);
+                  const baseUrl = `${urlObj.protocol}//${urlObj.host}`;
+                  return `${baseUrl}${p.url_dokumen}`;
+                } catch (err) {
+                  return null;
+                }
+              })()
             : null,
           hakim_ketua: p.hakim_ketua?.nama || (typeof p.hakim_ketua === 'string' ? p.hakim_ketua : null),
           penuntut_umum: p.penuntut_umum?.nama || (typeof p.penuntut_umum === 'string' ? p.penuntut_umum : null),
@@ -323,32 +331,15 @@ function PutusanDetailPage() {
               </p>
               <div className="mt-2 flex flex-wrap gap-2 text-xs">
                 {decision.url_dokumen ? (
-                  <button
-                    onClick={async () => {
-                      try {
-                        const resp = await fetch(decision.url_dokumen, {
-                          headers: {
-                            "x-api-key": API_KEY,
-                          },
-                        });
-                        if (!resp.ok) throw new Error("Download gagal");
-                        const blob = await resp.blob();
-                        const url = window.URL.createObjectURL(blob);
-                        const a = document.createElement("a");
-                        a.href = url;
-                        a.download = `Putusan_${decision.number.replace(/\//g, "-")}.pdf`;
-                        document.body.appendChild(a);
-                        a.click();
-                        window.URL.revokeObjectURL(url);
-                        document.body.removeChild(a);
-                      } catch (err) {
-                        alert("Gagal download dokumen: " + err.message);
-                      }
-                    }}
+                  <a
+                    href={decision.url_dokumen}
+                    download={`Putusan_${decision.number.replace(/\//g, "-")}.pdf`}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-3 py-2 font-semibold text-white shadow-sm hover:bg-sky-700"
                   >
-                    📄 Unduh PDF
-                  </button>
+                    Unduh PDF
+                  </a>
                 ) : (
                   <button
                     disabled
