@@ -515,17 +515,6 @@ function LandingPage() {
                   </Link>
 
                   <p className="mt-1 text-xs text-slate-600">{d.dateText}</p>
-
-                  <div className="mt-2 flex items-center gap-4 text-[11px] text-slate-500">
-                    <span className="inline-flex items-center gap-1">
-                      <span>👁️</span>
-                      <span>{d.views}</span>
-                    </span>
-                    <span className="inline-flex items-center gap-1">
-                      <span>💬</span>
-                      <span>{d.comments}</span>
-                    </span>
-                  </div>
                 </article>
               ))}
             </div>

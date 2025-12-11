@@ -59,18 +59,18 @@ const DUMMY_DECISIONS = [
     comments: 12,
   },
   {
-    id: 5,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Narkotika dan Psikotropika",
-    register: "20-09-2025",
-    decisionDate: "15-10-2025",
-    uploadDate: "07-12-2025",
-    number: "2990 K/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 2990 K/PID.SUS/2025",
-    dateText:
-      "Tanggal 15 Oktober 2025 — Penuntut Umum VS RICKY PRATAMA Alias KIKI (Terdakwa)",
-    views: 88,
-    comments: 20,
+      id: 5,
+      court: "MAHKAMAH AGUNG",
+      directory: "Pidana Khusus > Narkotika dan Psikotropika",
+      register: "20-09-2025",
+      decisionDate: "15-10-2025",
+      uploadDate: "07-12-2025",
+      number: "2990 K/PID.SUS/2025",
+      title: "Putusan MAHKAMAH AGUNG Nomor 2990 K/PID.SUS/2025",
+      dateText:
+        "Tanggal 15 Oktober 2025 — Penuntut Umum VS RICKY PRATAMA Alias KIKI (Terdakwa)",
+      views: 88,
+      comments: 20,
   },
   {
     id: 6,
@@ -301,10 +301,10 @@ function PutusanDetailPage() {
             Data putusan dengan ID {id} tidak tersedia di sistem dummy.
           </p>
           <Link
-            to="/putusan"
+            to="/"
             className="mt-4 inline-flex items-center justify-center rounded-lg bg-sky-600 px-4 py-2 text-xs font-semibold text-white hover:bg-sky-700"
           >
-            ← Kembali ke daftar putusan
+            Kembali ke daftar putusan
           </Link>
         </div>
       </section>
@@ -317,7 +317,7 @@ function PutusanDetailPage() {
 
   return (
     <section className="bg-slate-50 px-4 py-8">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-6xl">
         {/* Breadcrumb + back */}
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
           <nav className="flex flex-wrap items-center gap-1">
@@ -335,10 +335,10 @@ function PutusanDetailPage() {
           </nav>
 
           <Link
-            to="/putusan"
-            className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-50"
+            to="/"
+            className="inline-flex items-center gap-1 rounded-lg border border-slate-300 px-2 py-1 text-[11px] font-medium text-slate-700 hover:bg-slate-200 cursor-pointer"
           >
-            ← Kembali ke daftar
+            Kembali ke daftar
           </Link>
         </div>
 
@@ -379,12 +379,6 @@ function PutusanDetailPage() {
                   <span className="font-medium text-slate-700">
                     {decision.uploadDate}
                   </span>
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  👁️ <span>{decision.views}</span>
-                </span>
-                <span className="inline-flex items-center gap-1">
-                  💬 <span>{decision.comments}</span>
                 </span>
               </div>
             </header>
@@ -519,9 +513,6 @@ function PutusanDetailPage() {
                     </p>
                     <p className="text-xs font-semibold text-slate-800 line-clamp-2">
                       {rel.title}
-                    </p>
-                    <p className="mt-1 text-[11px] text-slate-500">
-                      Putus: {rel.decisionDate} · 👁️ {rel.views}
                     </p>
                   </Link>
                 ))}
