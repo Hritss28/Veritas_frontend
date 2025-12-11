@@ -26,17 +26,6 @@ function Header() {
           {/* DESKTOP NAV */}
           <nav className="hidden items-center gap-6 text-sm font-medium text-slate-600 md:flex">
             <NavLink
-              to="/putusan"
-              className={({ isActive }) =>
-                [
-                  "transition-colors hover:text-slate-900 text-lg",
-                  isActive ? "text-slate-900" : "text-slate-600",
-                ].join(" ")
-              }
-            >
-              Cari Putusan
-            </NavLink>
-            <NavLink
                 to="/#"
                 className={({ isActive }) =>
                     [

@@ -1,5 +1,6 @@
 // src/pages/PutusanDetailPage.jsx
 import { useParams, Link } from "react-router-dom";
+import { useState } from "react";
 
 const DUMMY_DECISIONS = [
   {
@@ -287,7 +288,7 @@ const DUMMY_DECISIONS = [
 function PutusanDetailPage() {
   const { id } = useParams();
   const decisionId = Number(id);
-
+  const [copied, setCopied] = useState(false);
   const decision = DUMMY_DECISIONS.find((d) => d.id === decisionId);
 
   if (!decision) {
@@ -475,10 +476,17 @@ function PutusanDetailPage() {
               </p>
               <div className="mt-2 flex flex-wrap gap-2 text-xs">
                 <button className="inline-flex items-center gap-2 rounded-lg bg-sky-600 px-3 py-2 font-semibold text-white shadow-sm hover:bg-sky-700">
-                  📄 Lihat / Unduh PDF
+                  Unduh PDF
                 </button>
-                <button className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 font-medium text-slate-700 hover:bg-slate-50">
-                  🔗 Salin tautan putusan
+                <button
+                  onClick={() => {
+                    navigator.clipboard.writeText(window.location.href);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 cursor-pointer"
+                >
+                  {copied ? "Tersalin!" : "Salin tautan halaman"}
                 </button>
               </div>
             </section>
@@ -517,17 +525,6 @@ function PutusanDetailPage() {
                   </Link>
                 ))}
               </div>
-            </div>
-
-            <div className="rounded-sm border bg-white p-4 text-xs text-slate-600 shadow-sm">
-              <h2 className="text-[11px] font-semibold uppercase tracking-wide text-slate-600">
-                Catatan Sistem
-              </h2>
-              <p className="mt-1">
-                Halaman ini menggunakan data dummy yang nantinya dapat
-                digantikan dengan data nyata dari layanan backend gerbang
-                putusan terdistribusi.
-              </p>
             </div>
           </aside>
         </div>
