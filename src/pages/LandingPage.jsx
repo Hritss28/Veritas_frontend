@@ -1,331 +1,232 @@
 // src/pages/LandingPage.jsx
 import { Link } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 
-const DIRECTORIES = [
-    { name: "Semua Direktori", count: 0 },
-    { name: "Perdata Agama", count: 7155723 },
-    { name: "Perdata", count: 1185074 },
-    { name: "Pidana Umum", count: 1043191 },
-    { name: "Pidana Khusus", count: 757222 },
-    { name: "TUN", count: 91483 },
-    { name: "Perdata Khusus", count: 53580 },
-    { name: "Pidana Militer", count: 34135 },
-    { name: "Pajak", count: 13037 },
-];
+const API_BASE_URL = import.meta.env.VITE_API_URL_PUSAT || "http://localhost:5001/api/v1";
+const API_KEY = import.meta.env.VITE_API_KEY_PUSAT || "veritas-pusat-key-2024";
 
-const PN = [
-    { name: "Bojonegoro", count: 20 },
-    { name: "Surabaya", count: 7155723 },
-    { name: "Bandung", count: 1185074 },
-    { name: "Malang", count: 1043191 },
-    { name: "Semarang", count: 757222 },
-    { name: "Yogyakarta", count: 91483 },
-];
+const DIRECTORIES = [];
 
-const YEARS = [2025, 2024, 2023, 2022, 2021, 2020];
-
-const DUMMY_DECISIONS = [
-  {
-    id: 1,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Narkotika dan Psikotropika",
-    register: "29-08-2025",
-    decisionDate: "19-09-2025",
-    uploadDate: "05-12-2025",
-    number: "2645 PK/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 2645 PK/PID.SUS/2025",
-    dateText: "Tanggal 19 September 2025 — Penuntut Umum VS M. DENDI SAPUTRA Bin DEDDI SUTOMO (Terpidana)",
-    views: 79,
-    comments: 41,
-  },
-  {
-    id: 2,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Narkotika dan Psikotropika",
-    register: "15-10-2025",
-    decisionDate: "12-11-2025",
-    uploadDate: "05-12-2025",
-    number: "3289 PK/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 3289 PK/PID.SUS/2025",
-    dateText: "Tanggal 12 November 2025 — Penuntut Umum VS ARIS ALAMIN Bin M. SYUKRI (Alm) Alias INDRA alias SYARIEF (Terpidana)",
-    views: 69,
-    comments: 34,
-  },
-  {
-    id: 3,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Korupsi",
-    register: "02-09-2025",
-    decisionDate: "25-10-2025",
-    uploadDate: "06-12-2025",
-    number: "1102 K/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 1102 K/PID.SUS/2025",
-    dateText: "Tanggal 25 Oktober 2025 — Penuntut Umum VS DRS. H. AGUS SALIM, M.Si (Terdakwa)",
-    views: 124,
-    comments: 56,
-  },
-  {
-    id: 4,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Perlindungan Anak",
-    register: "10-08-2025",
-    decisionDate: "05-09-2025",
-    uploadDate: "01-12-2025",
-    number: "889 PK/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 889 PK/PID.SUS/2025",
-    dateText: "Tanggal 05 September 2025 — Penuntut Umum VS HERMANTO Bin SUPARMAN (Terpidana)",
-    views: 45,
-    comments: 12,
-  },
-  {
-    id: 5,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Narkotika dan Psikotropika",
-    register: "20-09-2025",
-    decisionDate: "15-10-2025",
-    uploadDate: "07-12-2025",
-    number: "2990 K/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 2990 K/PID.SUS/2025",
-    dateText: "Tanggal 15 Oktober 2025 — Penuntut Umum VS RICKY PRATAMA Alias KIKI (Terdakwa)",
-    views: 88,
-    comments: 20,
-  },
-  {
-    id: 6,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Lingkungan Hidup",
-    register: "01-07-2025",
-    decisionDate: "28-08-2025",
-    uploadDate: "02-12-2025",
-    number: "542 K/PID.SUS-LH/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 542 K/PID.SUS-LH/2025",
-    dateText: "Tanggal 28 Agustus 2025 — Penuntut Umum VS PT. SAWIT MAKMUR ABADI (Terdakwa Korporasi)",
-    views: 210,
-    comments: 89,
-  },
-  {
-    id: 7,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > ITE",
-    register: "12-10-2025",
-    decisionDate: "30-11-2025",
-    uploadDate: "08-12-2025",
-    number: "1450 K/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 1450 K/PID.SUS/2025",
-    dateText: "Tanggal 30 November 2025 — Penuntut Umum VS DONI SETIAWAN, S.Kom (Terdakwa)",
-    views: 340,
-    comments: 112,
-  },
-  {
-    id: 8,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Narkotika dan Psikotropika",
-    register: "05-09-2025",
-    decisionDate: "10-10-2025",
-    uploadDate: "03-12-2025",
-    number: "2771 PK/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 2771 PK/PID.SUS/2025",
-    dateText: "Tanggal 10 Oktober 2025 — Penuntut Umum VS SITI AMINAH Binti KASIM (Terpidana)",
-    views: 55,
-    comments: 8,
-  },
-  {
-    id: 9,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Korupsi",
-    register: "18-08-2025",
-    decisionDate: "22-09-2025",
-    uploadDate: "04-12-2025",
-    number: "1205 K/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 1205 K/PID.SUS/2025",
-    dateText: "Tanggal 22 September 2025 — Penuntut Umum VS IR. H. MOCHTAR LUBIS (Terdakwa)",
-    views: 180,
-    comments: 67,
-  },
-  {
-    id: 10,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Narkotika dan Psikotropika",
-    register: "25-10-2025",
-    decisionDate: "20-11-2025",
-    uploadDate: "09-12-2025",
-    number: "3301 PK/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 3301 PK/PID.SUS/2025",
-    dateText: "Tanggal 20 November 2025 — Penuntut Umum VS ANDI FIRMANSYAH Bin RUSLI (Terpidana)",
-    views: 62,
-    comments: 15,
-  },
-  {
-    id: 11,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Perikanan",
-    register: "14-06-2025",
-    decisionDate: "15-08-2025",
-    uploadDate: "01-12-2025",
-    number: "302 K/PID.SUS-PRK/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 302 K/PID.SUS-PRK/2025",
-    dateText: "Tanggal 15 Agustus 2025 — Penuntut Umum VS NGUYEN VAN LONG (Terdakwa)",
-    views: 95,
-    comments: 22,
-  },
-  {
-    id: 12,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Narkotika dan Psikotropika",
-    register: "30-09-2025",
-    decisionDate: "28-10-2025",
-    uploadDate: "06-12-2025",
-    number: "3110 PK/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 3110 PK/PID.SUS/2025",
-    dateText: "Tanggal 28 Oktober 2025 — Penuntut Umum VS YULIA RAHMAWATI Alias YULI (Terpidana)",
-    views: 70,
-    comments: 29,
-  },
-  {
-    id: 13,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Pencucian Uang (TPPU)",
-    register: "11-09-2025",
-    decisionDate: "18-10-2025",
-    uploadDate: "05-12-2025",
-    number: "190 K/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 190 K/PID.SUS/2025",
-    dateText: "Tanggal 18 Oktober 2025 — Penuntut Umum VS BENNY SUDARSO (Terdakwa)",
-    views: 250,
-    comments: 99,
-  },
-  {
-    id: 14,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Narkotika dan Psikotropika",
-    register: "08-11-2025",
-    decisionDate: "02-12-2025",
-    uploadDate: "10-12-2025",
-    number: "3456 PK/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 3456 PK/PID.SUS/2025",
-    dateText: "Tanggal 02 Desember 2025 — Penuntut Umum VS KHAIRUL ANAM Bin ZAINUDDIN (Terpidana)",
-    views: 58,
-    comments: 10,
-  },
-  {
-    id: 15,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Kepabeanan",
-    register: "22-07-2025",
-    decisionDate: "14-09-2025",
-    uploadDate: "03-12-2025",
-    number: "776 K/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 776 K/PID.SUS/2025",
-    dateText: "Tanggal 14 September 2025 — Penuntut Umum VS CHEN WEI (Terdakwa)",
-    views: 110,
-    comments: 31,
-  },
-  {
-    id: 16,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Narkotika dan Psikotropika",
-    register: "03-10-2025",
-    decisionDate: "01-11-2025",
-    uploadDate: "07-12-2025",
-    number: "3188 PK/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 3188 PK/PID.SUS/2025",
-    dateText: "Tanggal 01 November 2025 — Penuntut Umum VS FERDIANSYAH Alias FERDI (Terpidana)",
-    views: 82,
-    comments: 44,
-  },
-  {
-    id: 17,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Kehutanan",
-    register: "19-08-2025",
-    decisionDate: "25-09-2025",
-    uploadDate: "02-12-2025",
-    number: "660 K/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 660 K/PID.SUS/2025",
-    dateText: "Tanggal 25 September 2025 — Penuntut Umum VS UDIN GAMBUT (Terdakwa)",
-    views: 135,
-    comments: 25,
-  },
-  {
-    id: 18,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Narkotika dan Psikotropika",
-    register: "27-09-2025",
-    decisionDate: "22-10-2025",
-    uploadDate: "06-12-2025",
-    number: "2905 PK/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 2905 PK/PID.SUS/2025",
-    dateText: "Tanggal 22 Oktober 2025 — Penuntut Umum VS RINI ANGGRAINI Binti JOKO (Terpidana)",
-    views: 49,
-    comments: 18,
-  },
-  {
-    id: 19,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Korupsi",
-    register: "05-11-2025",
-    decisionDate: "05-12-2025",
-    uploadDate: "10-12-2025",
-    number: "1355 K/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 1355 K/PID.SUS/2025",
-    dateText: "Tanggal 05 Desember 2025 — Penuntut Umum VS DR. H. SYAMSUL BAHRI, M.Pd (Terdakwa)",
-    views: 305,
-    comments: 140,
-  },
-  {
-    id: 20,
-    court: "MAHKAMAH AGUNG",
-    directory: "Pidana Khusus > Narkotika dan Psikotropika",
-    register: "12-09-2025",
-    decisionDate: "08-10-2025",
-    uploadDate: "04-12-2025",
-    number: "2840 PK/PID.SUS/2025",
-    title: "Putusan MAHKAMAH AGUNG Nomor 2840 PK/PID.SUS/2025",
-    dateText: "Tanggal 08 Oktober 2025 — Penuntut Umum VS BAGAS KARAMOY (Terpidana)",
-    views: 77,
-    comments: 26,
-  },
-];
+const COURTS = [];
 
 const ITEMS_PER_PAGE = 10;
 
+
 function LandingPage() {
-    const [selectedDir, setSelectedDir] = useState("Semua Direktori");
-    const [selectedPN, setSelectedPN] = useState("Bojonegoro");
-
-    const [selectedYear, setSelectedYear] = useState(2025);
-
+    const [selectedDir, setSelectedDir] = useState(null);
+    const [selectedPN, setSelectedPN] = useState(null);
+    const [selectedYear, setSelectedYear] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
+    
+    // State untuk data dari backend
+    const [decisions, setDecisions] = useState([]);
+    const [directories, setDirectories] = useState([{ name: "Semua Direktori", id: null, count: 0 }]);
+    const [courts, setCourts] = useState([{ name: "Semua Pengadilan", id: null, count: 0 }]);
+    const [years, setYears] = useState([{ tahun: "Semua Tahun", id: null, total_putusan: 0 }]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [keywordQuery, setKeywordQuery] = useState("");
+    const [pagination, setPagination] = useState({ total: 0, page: 1, limit: 10, pages: 0 });
 
-    const filteredDecisions = DUMMY_DECISIONS;
+    // Fetch putusan dari ServerPusat backend
+    useEffect(() => {
+        const fetchPutusan = async () => {
+            setLoading(true);
+            setError(null);
+            try {
+                const params = new URLSearchParams();
+                params.append("page", currentPage);
+                params.append("limit", ITEMS_PER_PAGE);
+                
+                if (searchQuery) params.append("search", searchQuery);
+                if (keywordQuery) params.append("search", keywordQuery);
+                if (selectedYear) params.append("id_tahun", selectedYear);
+                if (selectedPN) params.append("id_lembaga", selectedPN);
+                if (selectedDir) params.append("id_klasifikasi", selectedDir);
 
-    const totalItems = filteredDecisions.length;
-    const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+                const response = await fetch(
+                    `${API_BASE_URL}/putusan?${params.toString()}`,
+                    {
+                        headers: {
+                            "x-api-key": API_KEY,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
 
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    const endIndex = startIndex + ITEMS_PER_PAGE;
-    const paginatedDecisions = filteredDecisions.slice(startIndex, endIndex);
+                if (!response.ok) {
+                    throw new Error(`API Error: ${response.status}`);
+                }
 
-    const handleChangeDir = (name) => {
-        setSelectedDir(name);
+                const data = await response.json();
+                
+                // Transform data dari backend ke format yang sesuai dengan komponen
+                if (data.data && Array.isArray(data.data)) {
+                    const transformedDecisions = data.data.map((putusan) => ({
+                        id: putusan.id,
+                        court: putusan.lembaga?.nama_lembaga || "Pengadilan",
+                        directory: putusan.klasifikasi?.nama || "Umum",
+                        register: putusan.tanggal_upload ? new Date(putusan.tanggal_upload).toLocaleDateString("id-ID") : "-",
+                        decisionDate: putusan.tanggal_putusan ? new Date(putusan.tanggal_putusan).toLocaleDateString("id-ID") : "-",
+                        uploadDate: new Date(putusan.created_at).toLocaleDateString("id-ID"),
+                        number: putusan.nomor_putusan,
+                        title: `Putusan ${putusan.lembaga?.nama_lembaga || "Pengadilan"} Nomor ${putusan.nomor_putusan}`,
+                        dateText: `Tahun ${putusan.tahun?.tahun || "-"} — ${putusan.jenis_putusan || "Putusan"}`,
+                    }));
+
+                    setDecisions(transformedDecisions);
+                    
+                    // Simpan pagination info dari API
+                    if (data.pagination) {
+                        setPagination(data.pagination);
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching putusan:", err);
+                setError(err.message);
+                setDecisions([]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        // Debounce fetch untuk search
+        const timer = setTimeout(fetchPutusan, 500);
+        return () => clearTimeout(timer);
+    }, [currentPage, searchQuery, keywordQuery, selectedYear, selectedPN, selectedDir]);
+
+
+    // Fetch klasifikasi untuk direktori
+    useEffect(() => {
+        const fetchKlasifikasi = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/klasifikasi`, {
+                    headers: {
+                        "x-api-key": API_KEY,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.data && Array.isArray(data.data)) {
+                        const newDirs = [
+                            { name: "Semua Direktori", id: null, count: 0 },
+                            ...data.data.map((k) => ({
+                                name: k.nama,
+                                id: k.id,
+                                count: k.total_putusan || 0,
+                            })),
+                        ];
+                        setDirectories(newDirs);
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching klasifikasi:", err);
+            }
+        };
+
+        fetchKlasifikasi();
+    }, []);
+
+    // Fetch tahun
+    useEffect(() => {
+        const fetchTahun = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/tahun`, {
+                    headers: {
+                        "x-api-key": API_KEY,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.data && Array.isArray(data.data)) {
+                        const newYears = [
+                            { tahun: "Semua Tahun", id: null, total_putusan: 0 },
+                            ...data.data.map((t) => ({
+                                tahun: t.tahun,
+                                id: t.id,
+                                total_putusan: t.total_putusan || 0,
+                            })),
+                        ];
+                        setYears(newYears);
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching tahun:", err);
+            }
+        };
+
+        fetchTahun();
+    }, []);
+
+    // Fetch lembaga (courts)
+    useEffect(() => {
+        const fetchLembaga = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/lembaga`, {
+                    headers: {
+                        "x-api-key": API_KEY,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.data && Array.isArray(data.data)) {
+                        const newCourts = [
+                            { name: "Semua Pengadilan", id: null, count: 0 },
+                            ...data.data.map((l) => ({
+                                name: l.nama_lembaga,
+                                id: l.id,
+                                count: 0,
+                            })),
+                        ];
+                        setCourts(newCourts);
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching lembaga:", err);
+            }
+        };
+
+        fetchLembaga();
+    }, []);
+
+    // Use decisions directly (already paginated from API)
+    const paginatedDecisions = decisions;
+    const totalItems = pagination.total;
+    const totalPages = pagination.pages;
+    const startIndex = (pagination.page - 1) * pagination.limit;
+    const endIndex = startIndex + pagination.limit;
+
+    const handleChangeDir = (id) => {
+        setSelectedDir(id);
         setCurrentPage(1); 
     };
 
-    const handleChangeYear = (year) => {
-        setSelectedYear(year);
+    const handleChangeYear = (id) => {
+        setSelectedYear(id);
         setCurrentPage(1);
     };
 
-    const handleChangePN = (pn) => {
-        setSelectedPN(pn);
+    const handleChangePN = (id) => {
+        setSelectedPN(id);
         setCurrentPage(1);
     };
 
-  const goToPage = (page) => {
-    if (page < 1 || page > totalPages) return;
-    setCurrentPage(page);
-  };
+    const handleSearch = () => {
+        setCurrentPage(1);
+    };
+
+    const goToPage = (page) => {
+        if (page < 1 || page > totalPages) return;
+        setCurrentPage(page);
+    };
 
   return (
     <section className="bg-slate-50 px-4 py-8">
@@ -359,6 +260,8 @@ function LandingPage() {
                   </label>
                   <input
                     type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
                     placeholder="Contoh: 1234/Pid.B/2025"
                   />
@@ -369,13 +272,13 @@ function LandingPage() {
                   </label>
                   <input
                     type="text"
+                    value={keywordQuery}
+                    onChange={(e) => setKeywordQuery(e.target.value)}
                     className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
                     placeholder="Narkotika, perceraian, pajak, ..."
                   />
                 </div>
-                <button className="cursor-pointer mt-1 w-full rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-sky-700">
-                  Cari Putusan
-                </button>
+
               </div>
             </div>
 
@@ -387,18 +290,18 @@ function LandingPage() {
                     </h2>
                 </div>
                 <ul className="px-4 py-3 text-sm">
-                    {DIRECTORIES.map((dir) => (
-                    <li key={dir.name} className="mb-1 last:mb-0">
+                    {directories.map((dir) => (
+                    <li key={dir.id || 'all'} className="mb-1 last:mb-0">
                         <button
                         type="button"
-                        onClick={() => handleChangeDir(dir.name)}
-                        className={`cursor-pointer flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-left transition hover:bg-slate-50 ${
-                            selectedDir === dir.name
+                        onClick={() => handleChangeDir(dir.id)}
+                        className={`flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-left transition hover:bg-slate-50 ${
+                            selectedDir === dir.id
                             ? "bg-slate-100 font-semibold text-slate-900"
                             : "text-slate-700"
                         }`}
                         >
-                        <span>{dir.name}</span>
+                          <span>{dir.name}</span>
                         {dir.count > 0 && (
                             <span className="ml-2 rounded-full bg-slate-200 px-2 text-[10px] font-semibold text-slate-700">
                             {dir.count.toLocaleString("id-ID")}
@@ -419,25 +322,24 @@ function LandingPage() {
                 </h2>
               </div>
               <div className="flex flex-wrap gap-2 px-4 py-3">
-                {YEARS.map((year) => (
+                {years.map((year) => (
                   <button
-                    key={year}
+                    key={year.id || 'all'}
                     type="button"
-                    onClick={() => handleChangeYear(year)}
-                    className={`cursor-pointer rounded-sm border px-3 py-1 text-xs font-medium transition ${
-                      selectedYear === year
+                    onClick={() => handleChangeYear(year.id)}
+                    className={`rounded-full border px-3 py-1 text-xs font-medium transition ${
+                      selectedYear === year.id
                         ? "border-sky-600 bg-sky-50 text-sky-700"
                         : "border-slate-300 text-slate-700 hover:border-slate-400 hover:bg-slate-50"
                     }`}
                   >
-                    {year}
+                    {year.tahun}
                   </button>
                 ))}
               </div>
             </div>
 
             {/* Box 4: Pengadilan */}
-
             <div className="rounded-sm border bg-white shadow-sm">
                 <div className="border-b px-4 py-3">
                     <h2 className="text-sm font-semibold text-slate-800">
@@ -445,13 +347,14 @@ function LandingPage() {
                     </h2>
                 </div>
                 <ul className="px-4 py-3 text-sm">
-                    {PN.map((pn) => (
-                    <li key={pn.name} className="mb-1 last:mb-0">
+                    {courts.map((pn) => (
+                    <li key={pn.id || 'all'} className="mb-1 last:mb-0">
                         <button
                         type="button"
-                        onClick={() => handleChangePN(pn.name)}
-                        className={`cursor-pointer flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-left transition hover:bg-slate-50 ${
-                            selectedPN === pn.name
+                        onClick={() => handleChangePN(pn.id)}
+                        className={`flex w-full items-center justify-between rounded-lg px-2 py-1.5 text-left transition hover:bg-slate-50 ${
+                            selectedPN === pn.id
+
                             ? "bg-slate-100 font-semibold text-slate-900"
                             : "text-slate-700"
                         }`}
@@ -480,11 +383,11 @@ function LandingPage() {
                 <p className="text-xs text-slate-500">
                   Direktori:{" "}
                   <span className="font-medium text-slate-700">
-                    {selectedDir}
+                    {directories.find(d => d.id === selectedDir)?.name || "Semua Direktori"}
                   </span>{" "}
                   · Tahun:{" "}
                   <span className="font-medium text-slate-700">
-                    {selectedYear}
+                    {years.find(y => y.id === selectedYear)?.tahun || "Semua Tahun"}
                   </span>
                 </p>
               </div>
@@ -492,7 +395,28 @@ function LandingPage() {
             
             </div>
 
+            {/* Error Display */}
+            {error && (
+              <div className="mt-4 rounded-lg border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700">
+                Terjadi kesalahan: {error}. Menampilkan data dummy sebagai fallback.
+              </div>
+            )}
+
+            {/* Loading State */}
+            {loading && (
+              <div className="mt-4 space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="animate-pulse space-y-2 border-b border-dashed border-slate-200 pb-4 last:border-0">
+                    <div className="h-4 w-3/4 rounded bg-slate-200"></div>
+                    <div className="h-3 w-full rounded bg-slate-200"></div>
+                    <div className="h-3 w-2/3 rounded bg-slate-200"></div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* List putusan */}
+            {!loading && (
             <div className="mt-4 space-y-4">
               {paginatedDecisions.map((d) => (
                 <article
@@ -500,10 +424,10 @@ function LandingPage() {
                   className="border-b border-dashed border-slate-200 pb-4 last:border-0 last:pb-0"
                 >
                   <p className="mb-1 text-[11px] text-slate-500">
-                    Pengadilan &gt; {d.court} &gt; {d.directory}
+                    Pengadilan &gt; {d.court} &gt; {d.directory} &gt; {d.number}
                   </p>
                   <p className="mb-1 text-[11px] text-slate-500">
-                    Register : {d.register} — Putus : {d.decisionDate} — Upload
+                    Register : {d.register} — Upload
                     : {d.uploadDate}
                   </p>
 
@@ -518,6 +442,7 @@ function LandingPage() {
                 </article>
               ))}
             </div>
+            )}
 
             {/* ✅ Pagination */}
             {totalPages > 1 && (
@@ -531,17 +456,17 @@ function LandingPage() {
                   <span className="font-semibold">
                     {Math.min(endIndex, totalItems)}
                   </span>{" "}
-                  dari <span className="font-semibold">{totalItems}</span>{" "}
+                  dari <span className="font-semibold">{totalItems.toLocaleString('id-ID')}</span>{" "}
                   putusan
                 </p>
 
                 <div className="inline-flex items-center gap-1">
                   <button
                     type="button"
-                    onClick={() => goToPage(currentPage - 1)}
-                    disabled={currentPage === 1}
-                    className={`cursor-pointer rounded-md border px-2 py-1 ${
-                      currentPage === 1
+                    onClick={() => goToPage(pagination.page - 1)}
+                    disabled={pagination.page === 1}
+                    className={`rounded-md border px-2 py-1 ${
+                      pagination.page === 1
                         ? "cursor-not-allowed border-slate-200 text-slate-300"
                         : "border-slate-300 text-slate-700 hover:bg-slate-50"
                     }`}
@@ -552,28 +477,56 @@ function LandingPage() {
                   {/* tombol halaman sederhana */}
                   {Array.from({ length: totalPages }).map((_, idx) => {
                     const page = idx + 1;
-                    return (
-                      <button
-                        key={page}
-                        type="button"
-                        onClick={() => goToPage(page)}
-                        className={`cursor-pointer  min-w-[2rem] rounded-md border px-2 py-1 text-center ${
-                          currentPage === page
-                            ? "border-sky-600 bg-sky-50 text-sky-700"
-                            : "border-slate-300 text-slate-700 hover:bg-slate-50"
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    );
+                      // Tampilkan max 5 tombol halaman
+                    if (totalPages > 5) {
+                      if (page === 1 || page === totalPages || (page >= pagination.page - 1 && page <= pagination.page + 1)) {
+                        return (
+                          <button
+                            key={page}
+                            type="button"
+                            onClick={() => goToPage(page)}
+                            className={`min-w-8 rounded-md border px-2 py-1 text-center ${
+                              pagination.page === page
+                                ? "border-sky-600 bg-sky-50 text-sky-700"
+                                : "border-slate-300 text-slate-700 hover:bg-slate-50"
+                            }`}
+                          >
+                            {page}
+                          </button>
+                        );
+                      } else if (page === 2 && pagination.page > 3) {
+                        return (
+                          <span key="dots-start" className="px-1">...</span>
+                        );
+                      } else if (page === totalPages - 1 && pagination.page < totalPages - 2) {
+                        return (
+                          <span key="dots-end" className="px-1">...</span>
+                        );
+                      }
+                    } else {
+                      return (
+                        <button
+                          key={page}
+                          type="button"
+                          onClick={() => goToPage(page)}
+                          className={`min-w-8 rounded-md border px-2 py-1 text-center ${
+                            pagination.page === page
+                              ? "border-sky-600 bg-sky-50 text-sky-700"
+                              : "border-slate-300 text-slate-700 hover:bg-slate-50"
+                          }`}
+                        >
+                          {page}
+                        </button>
+                      );
+                    }
                   })}
 
                   <button
                     type="button"
-                    onClick={() => goToPage(currentPage + 1)}
-                    disabled={currentPage === totalPages}
-                    className={`cursor-pointer  rounded-md border px-2 py-1 ${
-                      currentPage === totalPages
+                    onClick={() => goToPage(pagination.page + 1)}
+                    disabled={pagination.page === totalPages}
+                    className={`rounded-md border px-2 py-1 ${
+                      pagination.page === totalPages
                         ? "cursor-not-allowed border-slate-200 text-slate-300"
                         : "border-slate-300 text-slate-700 hover:bg-slate-50"
                     }`}
